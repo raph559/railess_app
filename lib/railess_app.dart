@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'about_page.dart';
-import 'body.dart';
-import 'contact_page.dart';
 import 'custom_colors.dart';
-import 'help_page.dart';
 import 'home_page.dart';
 import 'my_app_bar.dart';
 import 'my_drawer.dart';
-import 'railess_app.dart';
-import 'service_page.dart';
 import 'train_page.dart';
 
 class RailessApp extends StatefulWidget {
@@ -40,14 +34,18 @@ class _RailessAppState extends State<RailessApp> {
       theme: themeData,
       home: Scaffold(
         backgroundColor: CustomColors.background,
-        appBar: MyAppBar(isDark: isDark),
-        drawer: MyDrawer(),
+        appBar: _selectedIndex == 0 ? MyAppBar(isDark: isDark) : null,
+        drawer: const MyDrawer(),
         body: Center(
           child: _selectedIndex == 0 ? HomePage(isDark: isDark, onThemeChanged: (value) {
             setState(() {
               isDark = value;
             });
-          }) : TrainPage(),
+          }) : TrainPage(isDark: isDark, onThemeChanged: (value) {
+            setState(() {
+              isDark = value;
+            });
+          })
         ),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
