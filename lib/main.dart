@@ -65,13 +65,15 @@ class _RailessAppState extends State<RailessApp> {
 }
 
 class AboutPage extends StatelessWidget {
+  const AboutPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('About'),
+        title: const Text('About'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('This is the About Page'),
       ),
     );
@@ -79,13 +81,15 @@ class AboutPage extends StatelessWidget {
 }
 
 class ServicePage extends StatelessWidget {
+  const ServicePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Service'),
+        title: const Text('Service'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('This is the Service Page'),
       ),
     );
@@ -93,13 +97,15 @@ class ServicePage extends StatelessWidget {
 }
 
 class HelpPage extends StatelessWidget {
+  const HelpPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Help'),
+        title: const Text('Help'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('This is the Help Page'),
       ),
     );
@@ -107,14 +113,16 @@ class HelpPage extends StatelessWidget {
 }
 
 class ContactPage extends StatelessWidget {
+  const ContactPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contact'),
+        title: const Text('Contact'),
       ),
-      body: Center(
-        child: Text('This is the Contactr Page'),
+      body: const Center(
+        child: Text('This is the Contact Page'),
       ),
     );
   }
@@ -123,7 +131,7 @@ class ContactPage extends StatelessWidget {
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isDark;
 
-  const MyAppBar({required this.isDark});
+  const MyAppBar({super.key, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -146,6 +154,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class MyDrawer extends StatelessWidget {
+  const MyDrawer({super.key});
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -167,38 +177,38 @@ class MyDrawer extends StatelessWidget {
               ),
             ),
             ListTile(
-              title: Text('About'),
+              title: const Text('About'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AboutPage()),
+                  MaterialPageRoute(builder: (context) => const AboutPage()),
                 );
               },
             ),
             ListTile(
-              title: Text('Service'),
+              title: const Text('Service'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ServicePage()),
+                  MaterialPageRoute(builder: (context) => const ServicePage()),
                 );
               },
             ),
             ListTile(
-              title: Text('Help'),
+              title: const Text('Help'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HelpPage()),
+                  MaterialPageRoute(builder: (context) => const HelpPage()),
                 );
               },
             ),
             ListTile(
-              title: Text('Contact'),
+              title: const Text('Contact'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ContactPage()),
+                  MaterialPageRoute(builder: (context) => const ContactPage()),
                 );
               },
             ),
@@ -213,7 +223,7 @@ class HomePage extends StatefulWidget {
   final bool isDark;
   final ValueChanged<bool> onThemeChanged;
 
-  HomePage({required this.isDark, required this.onThemeChanged});
+  const HomePage({super.key, required this.isDark, required this.onThemeChanged});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -280,9 +290,11 @@ class _HomePageState extends State<HomePage> {
   }
 }
 class TrainPage extends StatelessWidget {
+  const TrainPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text('Train Page'),
     );
   }
@@ -291,7 +303,7 @@ class TrainPage extends StatelessWidget {
 class MyBody extends StatefulWidget {
   final bool isDark;
   final ValueChanged<bool> onThemeChanged;
-  const MyBody({required this.isDark, required this.onThemeChanged});
+  const MyBody({super.key, required this.isDark, required this.onThemeChanged});
 
   @override
   _MyBodyState createState() => _MyBodyState();
