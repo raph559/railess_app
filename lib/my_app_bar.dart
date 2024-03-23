@@ -19,12 +19,19 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: const Text(
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: Icon(Icons.menu, color: isDark ? Colors.black : Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        ),
+      ),
+      title: Text(
         'Railess.',
         style: TextStyle(
           fontSize: 50.0,
           fontWeight: FontWeight.w700,
           fontFamily: 'NotoSansMono',
+          color: isDark ? Colors.black : Colors.white,
         ),
       ),
       centerTitle: true,

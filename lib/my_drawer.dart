@@ -12,11 +12,12 @@ import 'service_page.dart';
 import 'train_page.dart';
 
 class MyDrawer extends StatelessWidget {
-  const MyDrawer({super.key});
+  final bool isDark;
+
+  const MyDrawer({Key? key, required this.isDark}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Drawer(
       child: Container(
         color: CustomColors.background,
@@ -30,12 +31,17 @@ class MyDrawer extends StatelessWidget {
                   fontSize: 50.0,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'NotoSansMono',
-                  color: isDark ? Colors.white : Colors.black, // Change the color based on the theme
+                  color: isDark ? Colors.black : Colors.white,
                 ),
               ),
             ),
             ListTile(
-              title: const Text('About'),
+              title: Text(
+                'About',
+                style: TextStyle(
+                  color: isDark ? Colors.black : Colors.white,
+                ),
+              ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -44,7 +50,12 @@ class MyDrawer extends StatelessWidget {
               },
             ),
             ListTile(
-              title: const Text('Service'),
+              title: Text(
+                'Service',
+                style: TextStyle(
+                  color: isDark ? Colors.black : Colors.white,
+                ),
+              ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -53,7 +64,12 @@ class MyDrawer extends StatelessWidget {
               },
             ),
             ListTile(
-              title: const Text('Help'),
+              title: Text(
+                'Help',
+                style: TextStyle(
+                  color: isDark ? Colors.black : Colors.white,
+                ),
+              ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -62,7 +78,12 @@ class MyDrawer extends StatelessWidget {
               },
             ),
             ListTile(
-              title: const Text('Contact'),
+              title: Text(
+                'Contact',
+                style: TextStyle(
+                  color: isDark ? Colors.black : Colors.white,
+                ),
+              ),
               onTap: () {
                 Navigator.push(
                   context,

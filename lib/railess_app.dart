@@ -41,7 +41,7 @@ class _RailessAppState extends State<RailessApp> {
       home: Scaffold(
         backgroundColor: CustomColors.background,
         appBar: MyAppBar(isDark: isDark),
-        drawer: MyDrawer(),
+        drawer: MyDrawer(isDark: isDark),
         body: Center(
           child: _selectedIndex == 0 ? HomePage(isDark: isDark, onThemeChanged: (value) {
             setState(() {
