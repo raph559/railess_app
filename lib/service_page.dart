@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'custom_colors.dart';
-import 'my_app_bar.dart';
 
 class ServicePage extends StatelessWidget {
   const ServicePage({super.key});

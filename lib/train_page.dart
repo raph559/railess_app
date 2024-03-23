@@ -29,7 +29,7 @@ class _TrainPageState extends State<TrainPage> {
               return SearchBar(
                 controller: controller,
                 padding: const MaterialStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 8.0),
+                  EdgeInsets.symmetric(horizontal: 10.0),
                 ),
                 onTap: () {
                   controller.openView();
@@ -38,7 +38,7 @@ class _TrainPageState extends State<TrainPage> {
                   controller.openView();
                 },
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const Icon(Icons.search),
                   onPressed: () {
                     FocusScope.of(context).unfocus();
                   },
@@ -53,6 +53,7 @@ class _TrainPageState extends State<TrainPage> {
                   onTap: () {
                     setState(() {
                       controller.closeView(item);
+                      FocusScope.of(context).unfocus();
                     });
                   },
                 );
