@@ -22,6 +22,12 @@ class _RailessAppState extends State<RailessApp> {
     });
   }
 
+  void _onThemeChanged(bool value) {
+    setState(() {
+      isDark = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = ThemeData(
@@ -35,17 +41,9 @@ class _RailessAppState extends State<RailessApp> {
       home: Scaffold(
         backgroundColor: CustomColors.background,
         appBar: _selectedIndex == 0 ? MyAppBar(isDark: isDark) : null,
-        drawer: const MyDrawer(),
+        drawer: MyDrawer(isDark: isDark, onThemeChanged: _onThemeChanged),
         body: Center(
-          child: _selectedIndex == 0 ? HomePage(isDark: isDark, onThemeChanged: (value) {
-            setState(() {
-              isDark = value;
-            });
-          }) : TrainPage(isDark: isDark, onThemeChanged: (value) {
-            setState(() {
-              isDark = value;
-            });
-          })
+            child: _selectedIndex == 0 ? HomePage(isDark: isDark, onThemeChanged: _onThemeChanged) : TrainPage(isDark: isDark)
         ),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[

@@ -13,8 +13,9 @@ import 'train_page.dart';
 
 class MyDrawer extends StatelessWidget {
   final bool isDark;
+  final ValueChanged<bool> onThemeChanged;
 
-  const MyDrawer({Key? key, required this.isDark}) : super(key: key);
+  const MyDrawer({Key? key, required this.isDark, required this.onThemeChanged}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -91,9 +92,23 @@ class MyDrawer extends StatelessWidget {
                 );
               },
             ),
-          ],
-        ),
+            ListTile(
+              title: Text(
+              'Dark Mode',
+              style: TextStyle(
+              color: isDark ? Colors.black : Colors.white,
+              ),
+            ),
+            trailing: Switch(
+              value: isDark,
+              onChanged: onThemeChanged,
+              activeColor: Colors.black,
+              inactiveThumbColor: Colors.white,
+            ),
+            ),
+         ],
       ),
+    ),
     );
   }
 }
