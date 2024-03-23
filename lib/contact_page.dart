@@ -11,4 +11,18 @@ import 'railess_app.dart';
 import 'service_page.dart';
 import 'train_page.dart';
 
-void main() => runApp(const RailessApp());
+class ContactPage extends StatelessWidget {
+  const ContactPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Contact'),
+      ),
+      body: const Center(
+        child: Text('This is the Contact Page'),
+      ),
+    );
+  }
+}

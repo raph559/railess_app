@@ -11,4 +11,18 @@ import 'railess_app.dart';
 import 'service_page.dart';
 import 'train_page.dart';
 
-void main() => runApp(const RailessApp());
+class HelpPage extends StatelessWidget {
+  const HelpPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Help'),
+      ),
+      body: const Center(
+        child: Text('This is the Help Page'),
+      ),
+    );
+  }
+}

@@ -11,4 +11,6 @@ import 'railess_app.dart';
 import 'service_page.dart';
 import 'train_page.dart';
 
-void main() => runApp(const RailessApp());
+class CustomColors {
+  static const Color background = Color(0xFF808cf1);
+}

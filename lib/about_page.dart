@@ -11,4 +11,18 @@ import 'railess_app.dart';
 import 'service_page.dart';
 import 'train_page.dart';
 
-void main() => runApp(const RailessApp());
+class AboutPage extends StatelessWidget {
+  const AboutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('About'),
+      ),
+      body: const Center(
+        child: Text('This is the About Page'),
+      ),
+    );
+  }
+}
