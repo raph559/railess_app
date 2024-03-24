@@ -1,8 +1,6 @@
 import 'package:application_jam/custom_colors.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:application_jam/train_line.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/widgets.dart';
 
 class TrainPage extends StatefulWidget {
   final bool isDark;
@@ -14,6 +12,33 @@ class TrainPage extends StatefulWidget {
 }
 
 class _TrainPageState extends State<TrainPage> {
+  Future<List<TrainLine>>? futureTrainLines;
+  String searchedTrainLine = 'Libercourt';
+  List<String> allTrainStations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAllTrainStations();
+  }
+
+  void fetchAllTrainStations() async {
+    allTrainStations = await TrainLine.fetchAllStationsName();
+  }
+
+  void fetchTrainLines() {
+    futureTrainLines = TrainLine.getTrainLines(searchedTrainLine).timeout(const Duration(seconds: 10), onTimeout: () {
+      print('Failed to fetch train lines: request timed out');
+      return Future.value([]);
+    }).catchError((error) {
+      print('Failed to fetch train lines: $error');
+      if (error.toString().contains('Connection refused')) {
+        print('Could not establish a connection to the server. Please check your network connection and try again.');
+      }
+      return Future.value([]);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -24,67 +49,47 @@ class _TrainPageState extends State<TrainPage> {
         backgroundColor: CustomColors.background,
         appBar: AppBar(
           backgroundColor: CustomColors.background,
-          title: SearchAnchor(
-            builder: (BuildContext context, SearchController controller) {
-              return Center( // Add this
-                child: SearchBar(
-                  controller: controller,
-                  padding: const MaterialStatePropertyAll<EdgeInsets>(
-                    EdgeInsets.symmetric(horizontal: 10.0),
-                  ),
-                  onTap: () {
-                    controller.openView();
-                  },
-                  onChanged: (_) {
-                    controller.openView();
-                  },
-                  leading: IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                    },
-                  ),
-                ),
-              ); // And this
-            },
-            suggestionsBuilder: (BuildContext context, SearchController controller) {
-              return List<ListTile>.generate(20, (int index) {
-                final String item = 'item $index';
-                return ListTile(
-                  title: Text(item),
-                  onTap: () {
-                    setState(() {
-                      controller.closeView(item);
-                      FocusScope.of(context).unfocus();
-                    });
-                  },
-                );
+          title: TextField(
+            onChanged: (value) {
+              setState(() {
+                searchedTrainLine = value;
+                fetchAllTrainStations();
               });
+            },
+            onEditingComplete: () {
+              FocusScope.of(context).unfocus();
+              fetchTrainLines();
+            },
+            onSubmitted: (value) {
+              FocusScope.of(context).unfocus();
+              fetchTrainLines();
             },
           ),
         ),
         body: Center(
-          child: ListView(
-            children: const [
-              Card(
-                margin: EdgeInsets.only(left: 5, right: 5, top: 15, bottom: 0),
-                child: ListTile(
-                  leading: FlutterLogo(size: 56.0),
-                  title: Text("TEST"),
-                  subtitle: Text("je suis juste un test qui teste de la testation"),
-                  trailing: Icon(Icons.track_changes),
-                ),
-              ),
-              Card(
-                margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                child: ListTile(
-                  leading: FlutterLogo(size: 56.0),
-                  title: Text("TEST"),
-                  subtitle: Text("je suis juste un test qui teste de la testation"),
-                  trailing: Icon(Icons.track_changes),
-                ),
-              )
-            ],
+          child: FutureBuilder<List<TrainLine>>(
+            future: futureTrainLines,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      margin: const EdgeInsets.only(left: 5, right: 5, top: 15, bottom: 0),
+                      child: ListTile(
+                        leading: const FlutterLogo(size: 56.0),
+                        title: Text(snapshot.data![index].trainShortName),
+                        subtitle: Text(snapshot.data![index].trainLongName),
+                        trailing: const Icon(Icons.track_changes),
+                      ),
+                    );
+                  },
+                );
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}'); // Display the actual error message
+              }
+              return const CircularProgressIndicator();
+            },
           ),
         ),
       ),
