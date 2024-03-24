@@ -7,7 +7,7 @@ class MyDrawer extends StatelessWidget {
   final bool isDark;
   final ValueChanged<bool> onThemeChanged;
 
-  const MyDrawer({Key? key, required this.isDark, required this.onThemeChanged}) : super(key: key);
+  MyDrawer({Key? key, required this.isDark, required this.onThemeChanged}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class MyDrawer extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const AboutPage()),
+                        MaterialPageRoute(builder: (context) => AboutPage(isDark: isDark, onThemeChanged: onThemeChanged)),
                       );
                     },
                   ),
@@ -55,7 +55,7 @@ class MyDrawer extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ContactPage()),
+                        MaterialPageRoute(builder: (context) => ContactPage(isDark: isDark, onThemeChanged: onThemeChanged)),
                       );
                     },
                   ),

@@ -13,8 +13,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
+        Image.asset('assets/bg-home.jpg'),
         Text("Home Page here!"),
       ],
     );
