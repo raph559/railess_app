@@ -15,15 +15,20 @@ class _TrainPageState extends State<TrainPage> {
   Future<List<TrainLine>>? futureTrainLines;
   String searchedTrainLine = 'Libercourt';
   List<String> allTrainStations = [];
+  List<String> filteredStations = [];
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     fetchAllTrainStations();
+    _searchFocusNode.addListener(_onSearchFocusChange);
   }
 
   void fetchAllTrainStations() async {
     allTrainStations = await TrainLine.fetchAllStationsName();
+    filteredStations = List.from(allTrainStations);
   }
 
   void fetchTrainLines() {
@@ -39,6 +44,14 @@ class _TrainPageState extends State<TrainPage> {
     });
   }
 
+  void _onSearchFocusChange() {
+    if (!_searchFocusNode.hasFocus) {
+      setState(() {
+        filteredStations.clear();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -48,54 +61,125 @@ class _TrainPageState extends State<TrainPage> {
       child: Scaffold(
         backgroundColor: CustomColors.background,
         appBar: AppBar(
-          backgroundColor: CustomColors.background,
+          backgroundColor: CustomColors.background.withGreen(120), // This adds a red tint to the background color
           title: TextField(
+            controller: _searchController,
+            focusNode: _searchFocusNode,
             onChanged: (value) {
               setState(() {
                 searchedTrainLine = value;
-                fetchAllTrainStations();
+                if (searchedTrainLine.length >= 3) {
+                  filteredStations = allTrainStations.where((station) => station.toLowerCase().contains(searchedTrainLine.toLowerCase())).toList();
+                } else {
+                  filteredStations.clear();
+                  futureTrainLines = Future.value([]);
+                }
               });
+            },
+            onSubmitted: (value) {
+              FocusScope.of(context).unfocus();
+              if (value.length >= 3) {
+                fetchTrainLines();
+              } else {
+                futureTrainLines = Future.value([]);
+              }
             },
             onEditingComplete: () {
               FocusScope.of(context).unfocus();
               fetchTrainLines();
             },
-            onSubmitted: (value) {
-              FocusScope.of(context).unfocus();
-              fetchTrainLines();
-            },
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.search), // This adds a search icon to the left of the search bar
+            ),
           ),
         ),
-        body: Center(
-          child: FutureBuilder<List<TrainLine>>(
-            future: futureTrainLines,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      margin: const EdgeInsets.only(left: 5, right: 5, top: 15, bottom: 0),
-                      child: ListTile(
-                        leading: const Icon(Icons.train),
-                        title: Text(snapshot.data![index].trainShortName),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(snapshot.data![index].trainLongName),
-                            Text(snapshot.data![index].time),
-                          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Suggestions list
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: filteredStations.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(filteredStations[index]),
+                    onTap: () {
+                      setState(() {
+                        searchedTrainLine = filteredStations[index];
+                        _searchController.value = TextEditingValue(
+                          text: searchedTrainLine,
+                          selection: TextSelection.fromPosition(
+                            TextPosition(offset: searchedTrainLine.length),
+                          ),
+                        );
+                        filteredStations.clear();
+                        FocusScope.of(context).unfocus();
+                        fetchTrainLines();
+                      });
+                    },
+                  );
+                },
+              ),
+              // Rest of the body
+              FutureBuilder<List<TrainLine>>(
+                future: futureTrainLines,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting && futureTrainLines != null) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}'); // Display the actual error message
+                  } else if (snapshot.hasData) {
+                    if (snapshot.data!.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.only(top: 50.0),
+                        child: Text(
+                          'No trains found.',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        trailing: const Icon(Icons.timelapse),
+                      );
+                    } else {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            margin: const EdgeInsets.only(left: 5, right: 5, top: 15, bottom: 0),
+                            child: ListTile(
+                              leading: const Icon(Icons.train),
+                              title: Text(snapshot.data![index].trainShortName),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(snapshot.data![index].trainLongName),
+                                  Text(snapshot.data![index].time),
+                                ],
+                              ),
+                              trailing: const Icon(Icons.timelapse),
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  } else {
+                    return const Padding(
+                      padding: EdgeInsets.only(top: 50.0),
+                      child: Text(
+                        'Nothing to display.',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     );
-                  },
-                );
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}'); // Display the actual error message
-              }
-              return const CircularProgressIndicator();
-            },
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ),
