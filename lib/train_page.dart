@@ -77,10 +77,16 @@ class _TrainPageState extends State<TrainPage> {
                     return Card(
                       margin: const EdgeInsets.only(left: 5, right: 5, top: 15, bottom: 0),
                       child: ListTile(
-                        leading: const FlutterLogo(size: 56.0),
+                        leading: const Icon(Icons.train),
                         title: Text(snapshot.data![index].trainShortName),
-                        subtitle: Text(snapshot.data![index].trainLongName),
-                        trailing: const Icon(Icons.track_changes),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(snapshot.data![index].trainLongName),
+                            Text(snapshot.data![index].time),
+                          ],
+                        ),
+                        trailing: const Icon(Icons.timelapse),
                       ),
                     );
                   },
