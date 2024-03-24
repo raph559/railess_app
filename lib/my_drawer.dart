@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'about_page.dart';
 import 'contact_page.dart';
 import 'custom_colors.dart';
-import 'help_page.dart';
-import 'service_page.dart';
 
 class MyDrawer extends StatelessWidget {
   final bool isDark;
@@ -44,34 +42,6 @@ class MyDrawer extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const AboutPage()),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    title: Text(
-                      'Service',
-                      style: TextStyle(
-                        color: isDark ? Colors.black : Colors.white,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ServicePage()),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    title: Text(
-                      'Help',
-                      style: TextStyle(
-                        color: isDark ? Colors.black : Colors.white,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HelpPage()),
                       );
                     },
                   ),
