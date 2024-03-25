@@ -162,6 +162,7 @@ class _TrainPageState extends State<TrainPage> {
                               trailing: const Icon(Icons.timelapse),
                               onTap: () async {
                                 List<Station> crossedStations = await TrainLine.getCrossedStations(snapshot.data![index].trip_id);
+                                crossedStations.sort((a, b) => a.time.compareTo(b.time));
                                 double heightFactor = crossedStations.length * 0.1; // Assuming each element takes up 10% of the total height
                                 heightFactor = heightFactor > 0.9 ? 0.9 : heightFactor; // Limit the height factor to 90% of the total height
 
@@ -205,6 +206,10 @@ class _TrainPageState extends State<TrainPage> {
                                                               Text(
                                                                 i == 0 ? 'Departure' : (i == crossedStations.length - 1 ? 'Arrival' : ''), // Add the departure and arrival labels
                                                                 style: const TextStyle(fontSize: 12.0), // Make the text smaller
+                                                              ),
+                                                              Icon(
+                                                                i == 0 ? Icons.departure_board : (i == crossedStations.length - 1 ? Icons.flight_land : null), // Use Icons.flight_land for arrival
+                                                                size: 16.0, // Make the icon smaller
                                                               ),
                                                             ],
                                                           ),
