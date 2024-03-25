@@ -178,34 +178,47 @@ class _TrainPageState extends State<TrainPage> {
                                             children: <Widget>[
                                               Text(
                                                 snapshot.data![index].trainShortName,
-                                                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold), // Change the style as needed
+                                                style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold), // Change the style as needed
                                               ),
                                               Text(
                                                 snapshot.data![index].trainLongName,
-                                                style: TextStyle(fontSize: 16.0, fontStyle: FontStyle.italic), // Change the style as needed
+                                                style: const TextStyle(fontSize: 16.0, fontStyle: FontStyle.italic), // Change the style as needed
                                               ),
-                                              SizedBox(height: 20.0), // Add some space
+                                              const SizedBox(height: 20.0), // Add some space
                                               for (int i = 0; i < crossedStations.length; i++) ...[
                                                 ListTile(
-                                                  leading: Icon(Icons.train), // Add an icon to the left of the station name
+                                                  leading: const Icon(Icons.train), // Add an icon to the left of the station name
                                                   title: Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: <Widget>[
-                                                      Text(
-                                                        crossedStations[i].name,
-                                                        style: TextStyle(
-                                                          color: i == 0 ? Colors.green : (i == crossedStations.length - 1 ? Colors.red : null), // Change the color for the departure and terminus stations
-                                                        ),
+                                                      Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            crossedStations[i].name,
+                                                            style: TextStyle(
+                                                              color: i == 0 ? Colors.green : (i == crossedStations.length - 1 ? Colors.red : null), // Change the color for the departure and terminus stations
+                                                            ),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Text(
+                                                                i == 0 ? 'Departure' : (i == crossedStations.length - 1 ? 'Arrival' : ''), // Add the departure and arrival labels
+                                                                style: const TextStyle(fontSize: 12.0), // Make the text smaller
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
                                                       ),
                                                       Text(
                                                         crossedStations[i].time,
-                                                        style: TextStyle(fontSize: 12.0), // Make the time smaller
+                                                        style: const TextStyle(fontSize: 12.0), // Make the time smaller
                                                       ),
                                                     ],
                                                   ),
                                                 ),
                                                 if (i != crossedStations.length - 1) // Don't add an icon after the last station
-                                                  Icon(Icons.arrow_downward, size: 24.0, color: Colors.blue), // Increase the size and change the color of the arrow
+                                                  const Icon(Icons.arrow_downward, size: 24.0, color: Colors.blue), // Increase the size and change the color of the arrow
                                               ],
                                             ],
                                           ),
