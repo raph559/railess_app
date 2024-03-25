@@ -72,7 +72,6 @@ class _TrainPageState extends State<TrainPage> {
                   filteredStations = allTrainStations.where((station) => station.toLowerCase().contains(searchedTrainLine.toLowerCase())).toList();
                 } else {
                   filteredStations.clear();
-                  futureTrainLines = Future.value([]);
                 }
               });
             },
