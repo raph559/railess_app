@@ -61,7 +61,7 @@ class _TrainPageState extends State<TrainPage> {
       child: Scaffold(
         backgroundColor: CustomColors.background,
         appBar: AppBar(
-          backgroundColor: CustomColors.background.withGreen(120), // This adds a red tint to the background color
+          backgroundColor: CustomColors.background.withGreen(120),
           title: TextField(
             controller: _searchController,
             focusNode: _searchFocusNode,
@@ -89,14 +89,13 @@ class _TrainPageState extends State<TrainPage> {
               fetchTrainLines();
             },
             decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search), // This adds a search icon to the left of the search bar
+              prefixIcon: Icon(Icons.search),
             ),
           ),
         ),
         body: SingleChildScrollView(
           child: Column(
             children: [
-              // Suggestions list
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -121,14 +120,13 @@ class _TrainPageState extends State<TrainPage> {
                   );
                 },
               ),
-              // Rest of the body
               FutureBuilder<List<TrainLine>>(
                 future: futureTrainLines,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting && futureTrainLines != null) {
                     return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}'); // Display the actual error message
+                    return Text('Error: ${snapshot.error}');
                   } else if (snapshot.hasData) {
                     if (snapshot.data!.isEmpty) {
                       return const Padding(
@@ -148,7 +146,9 @@ class _TrainPageState extends State<TrainPage> {
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           return Card(
-                            margin: const EdgeInsets.only(left: 5, right: 5, top: 15, bottom: 0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0), // Adjust the corner radius as needed
+                            ),
                             child: ListTile(
                               leading: const Icon(Icons.train),
                               title: Text(snapshot.data![index].trainShortName),
@@ -160,6 +160,61 @@ class _TrainPageState extends State<TrainPage> {
                                 ],
                               ),
                               trailing: const Icon(Icons.timelapse),
+                              onTap: () async {
+                                List<Station> crossedStations = await TrainLine.getCrossedStations(snapshot.data![index].trip_id);
+                                double heightFactor = crossedStations.length * 0.1; // Assuming each element takes up 10% of the total height
+                                heightFactor = heightFactor > 0.9 ? 0.9 : heightFactor; // Limit the height factor to 90% of the total height
+
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (BuildContext context) {
+                                    return FractionallySizedBox(
+                                      heightFactor: heightFactor,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            children: <Widget>[
+                                              Text(
+                                                snapshot.data![index].trainShortName,
+                                                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold), // Change the style as needed
+                                              ),
+                                              Text(
+                                                snapshot.data![index].trainLongName,
+                                                style: TextStyle(fontSize: 16.0, fontStyle: FontStyle.italic), // Change the style as needed
+                                              ),
+                                              SizedBox(height: 20.0), // Add some space
+                                              for (int i = 0; i < crossedStations.length; i++) ...[
+                                                ListTile(
+                                                  leading: Icon(Icons.train), // Add an icon to the left of the station name
+                                                  title: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: <Widget>[
+                                                      Text(
+                                                        crossedStations[i].name,
+                                                        style: TextStyle(
+                                                          color: i == 0 ? Colors.green : (i == crossedStations.length - 1 ? Colors.red : null), // Change the color for the departure and terminus stations
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        crossedStations[i].time,
+                                                        style: TextStyle(fontSize: 12.0), // Make the time smaller
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                if (i != crossedStations.length - 1) // Don't add an icon after the last station
+                                                  Icon(Icons.arrow_downward, size: 24.0, color: Colors.blue), // Increase the size and change the color of the arrow
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           );
                         },

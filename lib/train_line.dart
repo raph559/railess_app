@@ -1,6 +1,23 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+class Station {
+  final String name;
+  final String time;
+
+  Station({
+    required this.name,
+    required this.time,
+  });
+
+  factory Station.fromJson(Map<String, dynamic> json) {
+    return Station(
+      name: json['stationName'] as String,
+      time: json['time'] as String,
+    );
+  }
+}
+
 class TrainLine {
   final String trainShortName;
   final String trainLongName;
@@ -43,6 +60,17 @@ class TrainLine {
       return List<String>.from(jsonDecode(response.body) as List<dynamic>);
     } else {
       throw Exception('Failed to load train stations.');
+    }
+  }
+
+  static Future<List<Station>> getCrossedStations(String tripId) async {
+    final response = await http.get(Uri.parse('http://84.46.255.122:80/api/getAllCrossedStationsByTrip/$tripId'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> list = jsonDecode(response.body) as List<dynamic>;
+      return list.map((item) => Station.fromJson(item as Map<String, dynamic>)).toList();
+    } else {
+      throw Exception('Failed to load crossed stations for trip $tripId.');
     }
   }
 }
