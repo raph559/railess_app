@@ -18,6 +18,7 @@ class _TrainPageState extends State<TrainPage> {
   List<String> filteredStations = [];
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  TimeOfDay? pickedTime;
 
   @override
   void initState() {
@@ -32,14 +33,16 @@ class _TrainPageState extends State<TrainPage> {
   }
 
   void fetchTrainLines() {
-    futureTrainLines = TrainLine.getTrainLines(searchedTrainLine).timeout(const Duration(seconds: 10), onTimeout: () {
-      print('Failed to fetch train lines: request timed out');
+    futureTrainLines = TrainLine.getTrainLines(searchedTrainLine).then((trainLines) {
+      trainLines.sort((a, b) => a.time.compareTo(b.time));
+      if (pickedTime != null) {
+        String pickedTimeString = '${pickedTime!.hour.toString().padLeft(2, '0')}:${pickedTime!.minute.toString().padLeft(2, '0')}';
+        trainLines = trainLines.where((trainLine) => trainLine.time.compareTo(pickedTimeString) >= 0).toList();
+      }
+      return trainLines;
+    }).timeout(const Duration(seconds: 10), onTimeout: () {
       return Future.value([]);
     }).catchError((error) {
-      print('Failed to fetch train lines: $error');
-      if (error.toString().contains('Connection refused')) {
-        print('Could not establish a connection to the server. Please check your network connection and try again.');
-      }
       return Future.value([]);
     });
   }
@@ -61,34 +64,62 @@ class _TrainPageState extends State<TrainPage> {
       child: Scaffold(
         backgroundColor: CustomColors.background,
         appBar: AppBar(
-          backgroundColor: CustomColors.background.withGreen(120),
-          title: TextField(
-            controller: _searchController,
-            focusNode: _searchFocusNode,
-            onChanged: (value) {
-              setState(() {
-                searchedTrainLine = value;
-                if (searchedTrainLine.length >= 3) {
-                  filteredStations = allTrainStations.where((station) => station.toLowerCase().contains(searchedTrainLine.toLowerCase())).toList();
+          backgroundColor: CustomColors.background,
+          title: Padding(
+            padding: const EdgeInsets.only(top: 0),
+            child: TextField(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              style: const TextStyle(
+                fontSize: 12.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search, color: Colors.white),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.access_time, color: Colors.white),
+                  onPressed: () async {
+                    pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    if (pickedTime != null) {
+                      fetchTrainLines();
+                    }
+                  },
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.white),
+                ),
+                filled: true,
+                fillColor: Colors.black.withOpacity(0.5),
+                hintText: 'Search',
+                hintStyle: const TextStyle(color: Colors.white),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchedTrainLine = value;
+                  if (searchedTrainLine.length >= 3) {
+                    filteredStations = allTrainStations.where((station) => station.toLowerCase().contains(searchedTrainLine.toLowerCase())).toList();
+                  } else {
+                    filteredStations.clear();
+                  }
+                });
+              },
+              onSubmitted: (value) {
+                FocusScope.of(context).unfocus();
+                if (value.length >= 3) {
+                  fetchTrainLines();
                 } else {
-                  filteredStations.clear();
+                  futureTrainLines = Future.value([]);
                 }
-              });
-            },
-            onSubmitted: (value) {
-              FocusScope.of(context).unfocus();
-              if (value.length >= 3) {
+              },
+              onEditingComplete: () {
+                FocusScope.of(context).unfocus();
                 fetchTrainLines();
-              } else {
-                futureTrainLines = Future.value([]);
-              }
-            },
-            onEditingComplete: () {
-              FocusScope.of(context).unfocus();
-              fetchTrainLines();
-            },
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
+              },
             ),
           ),
         ),
@@ -101,7 +132,17 @@ class _TrainPageState extends State<TrainPage> {
                 itemCount: filteredStations.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text(filteredStations[index]),
+                    title: Padding (
+                      padding: const EdgeInsets.only(left: 15.0),
+                      child: Text(
+                      filteredStations[index],
+                      style: const TextStyle(
+                        color: Colors.black, // Change the color to make the text more visible
+                        fontSize: 20.0, // Increase the font size
+                        fontWeight: FontWeight.bold, // Make the text bold
+                      ),
+                    ),
+                    ),
                     onTap: () {
                       setState(() {
                         searchedTrainLine = filteredStations[index];
@@ -146,7 +187,7 @@ class _TrainPageState extends State<TrainPage> {
                         itemBuilder: (context, index) {
                           return Card(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0), // Adjust the corner radius as needed
+                              borderRadius: BorderRadius.circular(15.0),
                             ),
                             child: ListTile(
                               leading: const Icon(Icons.train),
@@ -162,13 +203,17 @@ class _TrainPageState extends State<TrainPage> {
                               onTap: () async {
                                 List<Station> crossedStations = await TrainLine.getCrossedStations(snapshot.data![index].trip_id);
                                 crossedStations.sort((a, b) => a.time.compareTo(b.time));
-                                double heightFactor = crossedStations.length * 0.1; // Assuming each element takes up 10% of the total height
-                                heightFactor = heightFactor > 0.9 ? 0.9 : heightFactor; // Limit the height factor to 90% of the total height
+                                double heightFactor = crossedStations.length * 0.1;
+                                heightFactor = heightFactor > 0.9 ? 0.9 : heightFactor;
 
                                 showModalBottomSheet(
                                   context: context,
                                   isScrollControlled: true,
                                   builder: (BuildContext context) {
+                                    double heightFactor = crossedStations.length * 0.1;
+                                    heightFactor += 0.1;
+                                    heightFactor = heightFactor > 0.9 ? 0.9 : heightFactor;
+
                                     return FractionallySizedBox(
                                       heightFactor: heightFactor,
                                       child: Padding(
@@ -178,16 +223,16 @@ class _TrainPageState extends State<TrainPage> {
                                             children: <Widget>[
                                               Text(
                                                 snapshot.data![index].trainShortName,
-                                                style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold), // Change the style as needed
+                                                style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                                               ),
                                               Text(
                                                 snapshot.data![index].trainLongName,
-                                                style: const TextStyle(fontSize: 16.0, fontStyle: FontStyle.italic), // Change the style as needed
+                                                style: const TextStyle(fontSize: 16.0, fontStyle: FontStyle.italic),
                                               ),
-                                              const SizedBox(height: 20.0), // Add some space
+                                              const SizedBox(height: 20.0),
                                               for (int i = 0; i < crossedStations.length; i++) ...[
                                                 ListTile(
-                                                  leading: const Icon(Icons.train), // Add an icon to the left of the station name
+                                                  leading: const Icon(Icons.train),
                                                   title: Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: <Widget>[
@@ -197,18 +242,18 @@ class _TrainPageState extends State<TrainPage> {
                                                           Text(
                                                             crossedStations[i].name,
                                                             style: TextStyle(
-                                                              color: i == 0 ? Colors.green : (i == crossedStations.length - 1 ? Colors.red : null), // Change the color for the departure and terminus stations
+                                                              color: i == 0 ? Colors.green : (i == crossedStations.length - 1 ? Colors.red : null),
                                                             ),
                                                           ),
                                                           Row(
                                                             children: [
                                                               Text(
-                                                                i == 0 ? 'Departure' : (i == crossedStations.length - 1 ? 'Arrival' : ''), // Add the departure and arrival labels
-                                                                style: const TextStyle(fontSize: 12.0), // Make the text smaller
+                                                                i == 0 ? 'Departure' : (i == crossedStations.length - 1 ? 'Arrival' : ''),
+                                                                style: const TextStyle(fontSize: 12.0),
                                                               ),
                                                               Icon(
-                                                                i == 0 ? Icons.departure_board : (i == crossedStations.length - 1 ? Icons.flight_land : null), // Use Icons.flight_land for arrival
-                                                                size: 16.0, // Make the icon smaller
+                                                                i == 0 ? Icons.departure_board : (i == crossedStations.length - 1 ? Icons.flight_land : null),
+                                                                size: 16.0,
                                                               ),
                                                             ],
                                                           ),
@@ -216,13 +261,13 @@ class _TrainPageState extends State<TrainPage> {
                                                       ),
                                                       Text(
                                                         crossedStations[i].time,
-                                                        style: const TextStyle(fontSize: 12.0), // Make the time smaller
+                                                        style: const TextStyle(fontSize: 12.0),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-                                                if (i != crossedStations.length - 1) // Don't add an icon after the last station
-                                                  const Icon(Icons.arrow_downward, size: 24.0, color: Colors.blue), // Increase the size and change the color of the arrow
+                                                if (i != crossedStations.length - 1)
+                                                  const Icon(Icons.arrow_downward, size: 24.0, color: Colors.blue),
                                               ],
                                             ],
                                           ),
